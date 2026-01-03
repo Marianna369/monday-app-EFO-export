@@ -19,22 +19,43 @@ async function exportToExcel() {
         statusColumnId: import.meta.env.VITE_COLUMN_ID_STATUS,
         allowedStatus: 'Új belépő',
         targetStatus: 'Adatbázis',
-        statusLabels: {
-          '0': 'Adatbázis',
-          '1': 'Bejelentve',
-          '2': 'Törölve',
-          '5': 'Új belépő'
-        },
         columnIds: [
-          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_IDO, label: 'Születési dátum' },
-          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_HELY, label: 'Születési hely' },
-          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_NEV, label: 'Születési név' },
-          { id: import.meta.env.VITE_COLUMN_ID_ANYJA_NEVE, label: 'Anyja neve' },
-          { id: import.meta.env.VITE_COLUMN_ID_LAKCIM, label: 'Lakcím' },
-          { id: import.meta.env.VITE_COLUMN_ID_ALLAMPOLGARSAG, label: 'Állampolgárság' },
-          { id: import.meta.env.VITE_COLUMN_ID_TAJSZAM, label: 'Tajszám' },
-          { id: import.meta.env.VITE_COLUMN_ID_ADOAZONOSITO, label: 'Adóazonosító' },
-          { id: import.meta.env.VITE_COLUMN_ID_BANKSZAMLASZAM, label: 'Bankszámlaszám' }
+          {
+            id: import.meta.env.VITE_COLUMN_ID_SZULETESI_IDO,
+            label: 'Születési dátum'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_SZULETESI_HELY,
+            label: 'Születési hely'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_SZULETESI_NEV,
+            label: 'Születési név'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_ANYJA_NEVE,
+            label: 'Anyja neve'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_LAKCIM,
+            label: 'Lakcím'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_ALLAMPOLGARSAG,
+            label: 'Állampolgárság'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_TAJSZAM,
+            label: 'Tajszám'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_ADOAZONOSITO,
+            label: 'Adóazonosító'
+          },
+          {
+            id: import.meta.env.VITE_COLUMN_ID_BANKSZAMLASZAM,
+            label: 'Bankszámlaszám'
+          }
         ]
       })
     });
@@ -43,12 +64,17 @@ async function exportToExcel() {
       throw new Error('Az exportálás sikertelen.');
     }
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+    // ⬇️ IFRAME-BIZTOS EXCEL LETÖLTÉS
+    const arrayBuffer = await response.arrayBuffer();
+    const blob = new Blob([arrayBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
 
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = '';
+
+    // ❗ NEM adjuk meg a fájlnevet → backend dönti el
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
