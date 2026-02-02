@@ -15,9 +15,11 @@
     "dotenv": "^17.2.1",
     "moment": "^2.30.1",
     "monday-sdk-js": "^0.5.5",
+    "node-fetch": "^3.3.2",
     "roboto-fontface": "*",
     "vue": "^3.4.31",
-    "vuetify": "^3.6.11"
+    "vuetify": "^3.6.11",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/types": "^7.24.7",
