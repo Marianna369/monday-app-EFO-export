@@ -1,23 +1,7 @@
 import fetch from "node-fetch";
 import * as XLSX from "xlsx";
 
-/**
- * POST /api/excel_export
- * body:
- * {
- *   token: string,                 // monday sessionToken
- *   context: object,               // monday context
- *   statusColumnId: string,
- *   allowedStatus: string,
- *   targetStatus: string,
- *   columnIds: [{ id: string, label: string }]
- * }
- */
-
 export default async function handler(req, res) {
-  // ----------------------------------------------------
-  // CORS
-  // ----------------------------------------------------
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -31,7 +15,6 @@ export default async function handler(req, res) {
   }
 
   const {
-    token,
     context,
     statusColumnId,
     allowedStatus,
@@ -40,6 +23,9 @@ export default async function handler(req, res) {
   } = req.body || {};
 
   const boardId = context?.boardId;
+
+  // 💡 token a Vercel env-ből
+  const token = process.env.MONDAY_API_KEY;
 
   if (
     !token ||
@@ -53,9 +39,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ----------------------------------------------------
-    // 1️⃣ BOARD ITEMEK LEKÉRÉSE
-    // ----------------------------------------------------
     const itemsQuery = `
       query {
         boards(ids: ${boardId}) {
@@ -75,7 +58,7 @@ export default async function handler(req, res) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token, // ⬅️ ZIP app sessionToken
+        Authorization: token,
       },
       body: JSON.stringify({ query: itemsQuery }),
     });
@@ -83,11 +66,6 @@ export default async function handler(req, res) {
     const itemsJson = await itemsResponse.json();
     const items = itemsJson?.data?.boards?.[0]?.items || [];
 
-    console.log("Items count:", items.length);
-
-    // ----------------------------------------------------
-    // 2️⃣ SZŰRÉS – csak engedélyezett státusz
-    // ----------------------------------------------------
     const filteredItems = items.filter((item) => {
       const statusCol = item.column_values.find(
         (cv) => cv.id === statusColumnId
@@ -101,24 +79,16 @@ export default async function handler(req, res) {
       });
     }
 
-    // ----------------------------------------------------
-    // 3️⃣ EXCEL ADATOK ÖSSZEÁLLÍTÁSA
-    // ----------------------------------------------------
     const rows = filteredItems.map((item) => {
       const row = { Név: item.name };
-
       for (const col of columnIds) {
-        const colValue = item.column_values.find(
-          (cv) => cv.id === col.id
-        );
+        const colValue = item.column_values.find((cv) => cv.id === col.id);
         row[col.label] = colValue?.text ?? "";
       }
-
       return row;
     });
 
     const headers = ["Név", ...columnIds.map((c) => c.label)];
-
     const worksheet = XLSX.utils.json_to_sheet(rows, { header: headers });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Új belépők");
@@ -128,9 +98,6 @@ export default async function handler(req, res) {
       bookType: "xlsx",
     });
 
-    // ----------------------------------------------------
-    // 4️⃣ STÁTUSZ ÁTÁLLÍTÁSA
-    // ----------------------------------------------------
     for (const item of filteredItems) {
       const mutation = `
         mutation {
@@ -155,9 +122,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // ----------------------------------------------------
-    // 5️⃣ EXCEL VISSZAKÜLDÉSE
-    // ----------------------------------------------------
     const now = new Date()
       .toISOString()
       .replace("T", "_")
