@@ -2,7 +2,8 @@
 import MondayApi from '@/plugins/MondayApi';
 import { ColumnType, MainBoardItem, MainBoardStructure } from '@/plugins/types';
 import { onMounted, reactive } from 'vue';
-import ExcelExport from "./ExcelExport.vue";
+import ExcelExport from "@/views/ExcelExport.vue";
+
 
 const state = reactive({
     structure: null as MainBoardStructure,
