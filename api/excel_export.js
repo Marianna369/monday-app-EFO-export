@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   const boardId = context?.boardId;
 
-  const token = process.env.MONDAY_API_KEY;
+  const token = process.env.MONDAY_API_TOKEN;
 
   if (
     !token ||
