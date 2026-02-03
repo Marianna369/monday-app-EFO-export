@@ -13,8 +13,17 @@ export default async function handler(req, res) {
   );
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
+  // ⚠️ FONTOS: OPTIONS preflight válasz
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+
+    return res.status(204).end();
   }
 
   if (req.method !== "POST") {
@@ -31,7 +40,6 @@ export default async function handler(req, res) {
 
   const boardId = context?.boardId;
 
-  // token a Vercel env-ből
   const token = process.env.MONDAY_API_KEY;
 
   if (
