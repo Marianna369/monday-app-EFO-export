@@ -36,7 +36,24 @@ async function exportToExcel() {
     });
 
     if (!response.ok) {
-      throw new Error('Az exportálás sikertelen.');
+      let err: any = null;
+      try {
+        err = await response.json();
+      } catch {
+        err = null;
+      }
+      throw new Error(err?.error || err?.message || 'Az exportálás sikertelen.');
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      let err: any = null;
+      try {
+        err = await response.json();
+      } catch {
+        err = null;
+      }
+      throw new Error(err?.error || err?.message || 'Az exportálás sikertelen.');
     }
 
     const arrayBuffer = await response.arrayBuffer();
@@ -53,9 +70,9 @@ async function exportToExcel() {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    errorMessage.value = 'Hiba történt az export során.';
+    errorMessage.value = err?.message || 'Hiba történt az export során.';
   } finally {
     isLoadingExport.value = false;
   }
