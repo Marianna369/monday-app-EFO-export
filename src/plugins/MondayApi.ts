@@ -270,7 +270,7 @@ const MondayApi = {
         }
     `;
 
-    const response = await fetch('https://monday-app-efo-uj-belepo.vercel.app/api/create-monday-item', {
+    const response = await fetch('https://monday-app-efo-export.vercel.app/api/excel_export', {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json',
@@ -388,7 +388,7 @@ const MondayApi = {
 
     try {
       const response = await fetch(
-        "https://monday-app-efo-uj-belepo.vercel.app/api/create-monday-item",
+        "https://monday-app-efo-export.vercel.app/api/excel_export",
         {
           method: "POST",
           headers: {

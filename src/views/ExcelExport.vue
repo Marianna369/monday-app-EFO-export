@@ -5,7 +5,7 @@ const isLoadingExport = ref(false);
 const errorMessage = ref<string | null>(null);
 
 // 1) API URL környezeti változóból (Vercel-ben beállítod)
-const API_URL = import.meta.env.VITE_API_URL || "https://monday-app-efo-uj-belepo.vercel.app";
+const API_URL = import.meta.env.VITE_API_URL || "https://monday-app-efo-export.vercel.app";
 
 async function exportToExcel() {
   isLoadingExport.value = true;
