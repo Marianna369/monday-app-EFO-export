@@ -1,81 +1,66 @@
-<script setup lang="ts">
-import { reactive } from 'vue';
-// import MondayApi from '@/plugins/MondayApi';
+<script lang="ts" setup>
+import { ref } from "vue";
 
-const props = defineProps<{
-    structure: any
-}>();
+const isLoadingExport = ref(false);
+const errorMessage = ref<string | null>(null);
 
-const state = reactive({
-    isLoading: false,
-    dialog: false,
-    dialogTitle: '',
-    dialogText: ''
-});
+async function exportToExcel() {
+  isLoadingExport.value = true;
+  errorMessage.value = null;
 
-const onExportClick = async () => {
-    try {
-        state.isLoading = true;
+  try {
+    const response = await fetch("/api/excel_export", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        context: { boardId: Number(import.meta.env.VITE_TABLE_ID) },
+        statusColumnId: import.meta.env.VITE_COLUMN_ID_STATUS,
+        allowedStatus: "Új belépő",
+        targetStatus: "Adatbázis",
+        columnIds: [
+          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_IDO, label: "Születési dátum" },
+          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_HELY, label: "Születési hely" },
+          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_NEV, label: "Születési név" },
+          { id: import.meta.env.VITE_COLUMN_ID_ANYJA_NEVE, label: "Anyja neve" },
+          { id: import.meta.env.VITE_COLUMN_ID_LAKCIM, label: "Lakcím" },
+          { id: import.meta.env.VITE_COLUMN_ID_ALLAMPOLGARSAG, label: "Állampolgárság" },
+          { id: import.meta.env.VITE_COLUMN_ID_TAJSZAM, label: "Tajszám" },
+          { id: import.meta.env.VITE_COLUMN_ID_ADOAZONOSITO, label: "Adóazonosító" },
+          { id: import.meta.env.VITE_COLUMN_ID_BANKSZAMLASZAM, label: "Bankszámlaszám" }
+        ]
+      })
+    });
 
-        // boardId a structure-ből
-        const boardId = props.structure.BoardId || import.meta.env.VITE_TABLE_ID;
-
-        // Backend hívás — Excel letöltése
-        const response = await fetch(
-            `${import.meta.env.VITE_EXPORT_API}//api/excel_export?boardId=${boardId}`
-        );
-
-        if (!response.ok) {
-            throw new Error("Az exportálás sikertelen.");
-        }
-
-        // Excel blob letöltése
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `export_${boardId}.xlsx`;
-        a.click();
-
-        state.dialog = true;
-        state.dialogTitle = "Sikeres export";
-        state.dialogText = "Az Excel fájl letöltése megtörtént.";
-
-    } catch (err) {
-        state.dialog = true;
-        state.dialogTitle = "Hiba";
-        state.dialogText = err instanceof Error ? err.message : "Ismeretlen hiba";
-
-    } finally {
-        state.isLoading = false;
+    if (!response.ok) {
+      let err: any = null;
+      try {
+        err = await response.json();
+      } catch {
+        err = null;
+      }
+      throw new Error(err?.error || "Az exportálás sikertelen.");
     }
-};
+
+    const arrayBuffer = await response.arrayBuffer();
+    const blob = new Blob([arrayBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+  } catch (err: any) {
+    console.error(err);
+    errorMessage.value = err?.message || "Hiba történt az export során.";
+  } finally {
+    isLoadingExport.value = false;
+  }
+}
 </script>
-
-
-<template>
-    <div class="pa-6">
-
-        <v-row>
-            <v-col cols="6">
-                <v-btn color="blue" size="x-large" :loading="state.isLoading"
-                       prepend-icon="mdi-file-excel" @click="onExportClick">
-                    Excel export
-                </v-btn>
-
-                <v-dialog v-model="state.dialog" max-width="500">
-                    <v-card>
-                        <v-card-title>{{ state.dialogTitle }}</v-card-title>
-                        <v-card-text>{{ state.dialogText }}</v-card-text>
-                        <v-card-actions>
-                            <v-spacer />
-                            <v-btn color="primary" @click="state.dialog = false">OK</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-col>
-        </v-row>
-
-    </div>
-</template>
