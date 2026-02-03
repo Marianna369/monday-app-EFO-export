@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const isLoadingExport = ref(false);
 const errorMessage = ref<string | null>(null);
@@ -9,31 +9,32 @@ async function exportToExcel() {
   errorMessage.value = null;
 
   try {
-    const response = await fetch('/api/excel_export', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        context: { boardId: Number(import.meta.env.VITE_TABLE_ID) },
-
-        statusColumnId: import.meta.env.VITE_COLUMN_ID_STATUS,
-        allowedStatus: 'Új belépő',
-        targetStatus: 'Adatbázis',
-
-        columnIds: [
-          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_IDO, label: 'Születési dátum' },
-          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_HELY, label: 'Születési hely' },
-          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_NEV, label: 'Születési név' },
-          { id: import.meta.env.VITE_COLUMN_ID_ANYJA_NEVE, label: 'Anyja neve' },
-          { id: import.meta.env.VITE_COLUMN_ID_LAKCIM, label: 'Lakcím' },
-          { id: import.meta.env.VITE_COLUMN_ID_ALLAMPOLGARSAG, label: 'Állampolgárság' },
-          { id: import.meta.env.VITE_COLUMN_ID_TAJSZAM, label: 'Tajszám' },
-          { id: import.meta.env.VITE_COLUMN_ID_ADOAZONOSITO, label: 'Adóazonosító' },
-          { id: import.meta.env.VITE_COLUMN_ID_BANKSZAMLASZAM, label: 'Bankszámlaszám' }
-        ]
-      })
-    });
+    const response = await fetch(
+      "https://monday-app-efo-uj-belepo.vercel.app/api/excel_export",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          context: { boardId: Number(import.meta.env.VITE_TABLE_ID) },
+          statusColumnId: import.meta.env.VITE_COLUMN_ID_STATUS,
+          allowedStatus: "Új belépő",
+          targetStatus: "Adatbázis",
+          columnIds: [
+            { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_IDO, label: "Születési dátum" },
+            { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_HELY, label: "Születési hely" },
+            { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_NEV, label: "Születési név" },
+            { id: import.meta.env.VITE_COLUMN_ID_ANYJA_NEVE, label: "Anyja neve" },
+            { id: import.meta.env.VITE_COLUMN_ID_LAKCIM, label: "Lakcím" },
+            { id: import.meta.env.VITE_COLUMN_ID_ALLAMPOLGARSAG, label: "Állampolgárság" },
+            { id: import.meta.env.VITE_COLUMN_ID_TAJSZAM, label: "Tajszám" },
+            { id: import.meta.env.VITE_COLUMN_ID_ADOAZONOSITO, label: "Adóazonosító" },
+            { id: import.meta.env.VITE_COLUMN_ID_BANKSZAMLASZAM, label: "Bankszámlaszám" }
+          ]
+        })
+      }
+    );
 
     if (!response.ok) {
       let err: any = null;
@@ -42,27 +43,17 @@ async function exportToExcel() {
       } catch {
         err = null;
       }
-      throw new Error(err?.error || err?.message || 'Az exportálás sikertelen.');
-    }
 
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('application/json')) {
-      let err: any = null;
-      try {
-        err = await response.json();
-      } catch {
-        err = null;
-      }
-      throw new Error(err?.error || err?.message || 'Az exportálás sikertelen.');
+      throw new Error(err?.error || "Az exportálás sikertelen.");
     }
 
     const arrayBuffer = await response.arrayBuffer();
     const blob = new Blob([arrayBuffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     });
 
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
 
     document.body.appendChild(a);
@@ -72,7 +63,7 @@ async function exportToExcel() {
 
   } catch (err: any) {
     console.error(err);
-    errorMessage.value = err?.message || 'Hiba történt az export során.';
+    errorMessage.value = err?.message || "Hiba történt az export során.";
   } finally {
     isLoadingExport.value = false;
   }
@@ -90,12 +81,7 @@ async function exportToExcel() {
       Excel export
     </v-btn>
 
-    <v-alert
-      v-if="errorMessage"
-      type="error"
-      class="mt-4"
-      density="compact"
-    >
+    <v-alert v-if="errorMessage" type="error" class="mt-4" density="compact">
       {{ errorMessage }}
     </v-alert>
   </div>
