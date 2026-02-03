@@ -2,7 +2,6 @@
 import MondayApi from '@/plugins/MondayApi';
 import { ColumnType, MainBoardItem, MainBoardStructure } from '@/plugins/types';
 import { onMounted, reactive } from 'vue';
-import ListItemNew from './ListItemNew.vue';
 
 const state = reactive({
     structure: null as MainBoardStructure,

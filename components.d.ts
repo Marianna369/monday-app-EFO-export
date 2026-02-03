@@ -14,7 +14,6 @@ declare module 'vue' {
     DropdownMultiple: typeof import('./src/components/formElements/DropdownMultiple.vue')['default']
     FileUploadButton: typeof import('./src/components/formElements/FileUploadButton.vue')['default']
     ListItemEditor: typeof import('./src/components/ListItemEditor.vue')['default']
-    ListItemNew: typeof import('./src/components/ListItemNew.vue')['default']
     ListPage: typeof import('./src/components/ListPage.vue')['default']
     Main: typeof import('./src/components/Main.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
