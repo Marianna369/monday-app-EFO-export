@@ -22,7 +22,7 @@ const onExportClick = async () => {
 
         // Backend hívás — Excel letöltése
         const response = await fetch(
-            `${import.meta.env.VITE_EXPORT_API}/api/export?boardId=${boardId}`
+            `${import.meta.env.VITE_EXPORT_API}//api/excel_export?boardId=${boardId}`
         );
 
         if (!response.ok) {

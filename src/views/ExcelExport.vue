@@ -4,37 +4,37 @@ import { ref } from "vue";
 const isLoadingExport = ref(false);
 const errorMessage = ref<string | null>(null);
 
+// 1) API URL környezeti változóból (Vercel-ben beállítod)
+const API_URL = import.meta.env.VITE_API_URL || "https://monday-app-efo-uj-belepo.vercel.app";
+
 async function exportToExcel() {
   isLoadingExport.value = true;
   errorMessage.value = null;
 
   try {
-    const response = await fetch(
-      "https://monday-app-efo-uj-belepo.vercel.app/api/excel_export",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          context: { boardId: Number(import.meta.env.VITE_TABLE_ID) },
-          statusColumnId: import.meta.env.VITE_COLUMN_ID_STATUS,
-          allowedStatus: "Új belépő",
-          targetStatus: "Adatbázis",
-          columnIds: [
-            { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_IDO, label: "Születési dátum" },
-            { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_HELY, label: "Születési hely" },
-            { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_NEV, label: "Születési név" },
-            { id: import.meta.env.VITE_COLUMN_ID_ANYJA_NEVE, label: "Anyja neve" },
-            { id: import.meta.env.VITE_COLUMN_ID_LAKCIM, label: "Lakcím" },
-            { id: import.meta.env.VITE_COLUMN_ID_ALLAMPOLGARSAG, label: "Állampolgárság" },
-            { id: import.meta.env.VITE_COLUMN_ID_TAJSZAM, label: "Tajszám" },
-            { id: import.meta.env.VITE_COLUMN_ID_ADOAZONOSITO, label: "Adóazonosító" },
-            { id: import.meta.env.VITE_COLUMN_ID_BANKSZAMLASZAM, label: "Bankszámlaszám" }
-          ]
-        })
-      }
-    );
+    const response = await fetch(`${API_URL}/api/excel_export`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        context: { boardId: Number(import.meta.env.VITE_TABLE_ID) },
+        statusColumnId: import.meta.env.VITE_COLUMN_ID_STATUS,
+        allowedStatus: "Új belépő",
+        targetStatus: "Adatbázis",
+        columnIds: [
+          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_IDO, label: "Születési dátum" },
+          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_HELY, label: "Születési hely" },
+          { id: import.meta.env.VITE_COLUMN_ID_SZULETESI_NEV, label: "Születési név" },
+          { id: import.meta.env.VITE_COLUMN_ID_ANYJA_NEVE, label: "Anyja neve" },
+          { id: import.meta.env.VITE_COLUMN_ID_LAKCIM, label: "Lakcím" },
+          { id: import.meta.env.VITE_COLUMN_ID_ALLAMPOLGARSAG, label: "Állampolgárság" },
+          { id: import.meta.env.VITE_COLUMN_ID_TAJSZAM, label: "Tajszám" },
+          { id: import.meta.env.VITE_COLUMN_ID_ADOAZONOSITO, label: "Adóazonosító" },
+          { id: import.meta.env.VITE_COLUMN_ID_BANKSZAMLASZAM, label: "Bankszámlaszám" }
+        ]
+      })
+    });
 
     if (!response.ok) {
       let err: any = null;
